@@ -4,6 +4,8 @@ import { Register } from '@/pages/Register';
 import { Result } from 'antd';
 import { ResetPassword } from './pages/ResetPassword';
 import { BasicLayout } from './layout/BasicLayout';
+import { Home } from './pages/Home';
+import { UserList } from './pages/UserList';
 
 interface IMyRouteObject extends RouteObject {
     key?: string;
@@ -27,8 +29,8 @@ const _routes: IMyRouteObject[] = [
                 label: '系统设置',
                 key: 'system-setting',
                 children: [
-                    { path: 'home', label: '首页', element: <h2>home page </h2> },
-                    { path: 'user', label: '用户中心', element: <h2>use page </h2> },
+                    { path: 'home', label: '首页', element: <Home /> },
+                    { path: 'user', label: '用户中心', element: <UserList /> },
                 ],
             },
         ],
@@ -87,5 +89,20 @@ function loopRoutes(routes: IMyRouteObject[], parent: MyRouteObjectWithParent | 
     });
 }
 loopRoutes(_routes);
+
+export function getFlatRoutes(): MyRouteObjectWithParent[] {
+    const flatRoutes: MyRouteObjectWithParent[] = []
+    const loop = (routes: MyRouteObjectWithParent[]) => {
+        routes.forEach(route => {
+            flatRoutes.push(route)
+            if (route.children) {
+                loop(route.children)
+            }
+        })
+    }
+    loop(_routes as MyRouteObjectWithParent[])
+
+    return flatRoutes
+}
 
 export const routes = _routes as MyRouteObjectWithParent[];

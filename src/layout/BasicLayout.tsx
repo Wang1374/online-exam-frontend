@@ -1,7 +1,7 @@
-import { MyRouteObjectWithParent, routes } from '@/routes';
+import { getFlatRoutes, MyRouteObjectWithParent, routes } from '@/routes';
 import { Layout, Menu } from 'antd';
-import { Outlet, useNavigate, NavigateFunction } from 'react-router-dom';
-import { useMemo } from 'react';
+import { Outlet, useNavigate, NavigateFunction, useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 import { ItemType, MenuItemGroupType } from 'antd/lib/menu/hooks/useItems';
 
 function getMenuItems(navigate: NavigateFunction, routes?: MyRouteObjectWithParent[]): ItemType[] {
@@ -49,16 +49,49 @@ function getMenuItem(route: MyRouteObjectWithParent, navigate: NavigateFunction)
     return menuItem;
 }
 
+function getMenuSelectedKeys(pathname: string): string[] {
+    const flatRoutes = getFlatRoutes();
+    const currentRoute = flatRoutes.find((route) => route.key === pathname);
+
+    if (!currentRoute) {
+        return [];
+    }
+
+    let selectedKeys: string[] = [currentRoute.key!];
+    let parent = currentRoute.parent;
+    while (parent) {
+        selectedKeys.push(parent.key!);
+        parent = parent.parent;
+    }
+
+    return selectedKeys;
+}
+
 export function BasicLayout() {
+    const location = useLocation(); // 如果路由变化了，location就会变化
     const navigate = useNavigate();
     const menuItems = useMemo(() => getMenuItems(navigate, routes), [navigate]);
-    console.log(menuItems)
+    const [seletedKeys, setSeletedKeys] = useState<string[]>();
+
+    // 监听路由的变化
+    useEffect(() => {
+        const pathname = location.pathname;
+        const selectedKeys = getMenuSelectedKeys(pathname);
+        setSeletedKeys(selectedKeys);
+    }, [location]);
+
     return (
         <Layout style={{ height: '100vh' }}>
             <Layout.Header>header</Layout.Header>
             <Layout>
                 <Layout.Sider>
-                    <Menu mode='inline' theme='dark' items={menuItems} />
+                    <Menu
+                        mode='inline'
+                        theme='dark'
+                        selectedKeys={seletedKeys}
+                        openKeys={seletedKeys}
+                        items={menuItems}
+                    />
                 </Layout.Sider>
                 <Layout.Content style={{ padding: '24px 16px' }}>
                     <Outlet />
