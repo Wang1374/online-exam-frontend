@@ -35,20 +35,6 @@ const _routes: IMyRouteObject[] = [
             },
         ],
     },
-    {
-        path: '/a',
-        element: <BasicLayout />,
-        children: [
-            {
-                label: '系统设置2',
-                key: 'system-setting1',
-                children: [
-                    { path: 'home', label: '首页2', element: <h2>home page </h2> },
-                    { path: 'user', label: '用户中心2', element: <h2>use page </h2> },
-                ],
-            },
-        ],
-    },
     { path: '/login', hideInMenu: true, element: <Login /> },
     { path: '/register', hideInMenu: true, element: <Register /> },
     { path: '/reset-password', hideInMenu: true, element: <ResetPassword /> },

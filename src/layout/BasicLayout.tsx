@@ -49,35 +49,40 @@ function getMenuItem(route: MyRouteObjectWithParent, navigate: NavigateFunction)
     return menuItem;
 }
 
-function getMenuSelectedKeys(pathname: string): string[] {
+function getMenuKeys(pathname: string): { openKeys: string[]; selectedKeys: string[] } {
     const flatRoutes = getFlatRoutes();
     const currentRoute = flatRoutes.find((route) => route.key === pathname);
 
     if (!currentRoute) {
-        return [];
+        return { openKeys: [], selectedKeys: [] };
     }
 
     let selectedKeys: string[] = [currentRoute.key!];
+    let openKeys: string[] = [];
     let parent = currentRoute.parent;
     while (parent) {
-        selectedKeys.push(parent.key!);
+        const parentKey = parent.key!;
+        parent.children.length > 0 ? openKeys.push(parentKey) : selectedKeys.push(parentKey);
         parent = parent.parent;
     }
 
-    return selectedKeys;
+    return { openKeys, selectedKeys };
 }
 
 export function BasicLayout() {
     const location = useLocation(); // 如果路由变化了，location就会变化
     const navigate = useNavigate();
     const menuItems = useMemo(() => getMenuItems(navigate, routes), [navigate]);
-    const [seletedKeys, setSeletedKeys] = useState<string[]>();
+    const [seletedKeys, setSeletedKeys] = useState<string[]>([]);
+    const [openKeys, setOpenKeys] = useState<string[]>([]);
 
     // 监听路由的变化
     useEffect(() => {
         const pathname = location.pathname;
-        const selectedKeys = getMenuSelectedKeys(pathname);
+        const { selectedKeys, openKeys } = getMenuKeys(pathname);
+        console.log(selectedKeys, openKeys)
         setSeletedKeys(selectedKeys);
+        setOpenKeys(openKeys);
     }, [location]);
 
     return (
@@ -88,9 +93,10 @@ export function BasicLayout() {
                     <Menu
                         mode='inline'
                         theme='dark'
-                        selectedKeys={seletedKeys}
-                        openKeys={seletedKeys}
                         items={menuItems}
+                        selectedKeys={seletedKeys}
+                        openKeys={openKeys}
+                        onOpenChange={setOpenKeys}
                     />
                 </Layout.Sider>
                 <Layout.Content style={{ padding: '24px 16px' }}>
