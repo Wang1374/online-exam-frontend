@@ -1,4 +1,5 @@
+import { Link } from "react-router-dom";
 
 export function UserList() {
-    return <h2>UserList page</h2>
+    return <h2>UserList page <Link to="/home">Home</Link> </h2>
 }
